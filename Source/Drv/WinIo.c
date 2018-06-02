@@ -8,6 +8,7 @@
 #include <ntddk.h>
 #include "winio_nt.h"
 
+#pragma warning(disable: 4305)
 #define IOPM_SIZE 0x2000
 typedef char IOPM[IOPM_SIZE];
 
@@ -41,6 +42,7 @@ NTSTATUS DriverEntry (IN PDRIVER_OBJECT DriverObject,
 	NTSTATUS        ntStatus;
 	PDEVICE_OBJECT  DeviceObject = NULL;
 
+	UNREFERENCED_PARAMETER(RegistryPath);
 	KdPrint(("Entering DriverEntry"));
 
 	RtlInitUnicodeString (&DeviceNameUnicodeString, L"\\Device\\WinIo");
@@ -110,6 +112,8 @@ NTSTATUS WinIoDispatch(IN PDEVICE_OBJECT DeviceObject,
 	struct             tagPortStruct PortStruct;
 	struct             tagPhysStruct32 *pPhysStruct32 = NULL;
 
+	UNREFERENCED_PARAMETER(DeviceObject);
+	UNREFERENCED_PARAMETER(pPhysStruct32);
 	KdPrint(("Entering WinIoDispatch"));
 
 	// Init to default settings
@@ -183,6 +187,8 @@ NTSTATUS WinIoDispatch(IN PDEVICE_OBJECT DeviceObject,
 		}
 
 		break;
+#else
+			UNREFERENCED_PARAMETER(pIOPM);
 #endif
 
 	case IOCTL_WINIO_WRITEPORT:
@@ -362,7 +368,7 @@ NTSTATUS MapPhysicalMemoryToLinearSpace(PVOID pPhysAddress,
 
 	InitializeObjectAttributes (&ObjectAttributes,
 		&PhysicalMemoryUnicodeString,
-		OBJ_CASE_INSENSITIVE,
+		OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
 		(HANDLE) NULL,
 		(PSECURITY_DESCRIPTOR) NULL);
 
